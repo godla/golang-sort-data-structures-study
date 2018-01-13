@@ -23,3 +23,7 @@ func insert() {
 func delte() {
 
 }
+
+func search() {
+
+}
