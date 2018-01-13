@@ -19,3 +19,7 @@ type node struct {
 func insert() {
 
 }
+
+func delte() {
+
+}
