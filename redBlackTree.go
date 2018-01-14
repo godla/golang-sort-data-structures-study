@@ -2,10 +2,7 @@ package main
 
 import (
 	"fmt"
-	//"os"
 )
-
-var rootNode *node
 
 func main() {
 	fmt.Println("red-black-tree")
@@ -17,8 +14,6 @@ func main() {
 		tree.insertB(v)
 	}
 	fmt.Println(tree.size)
-
-	//os.Exit(29999)
 }
 
 type node struct {
@@ -132,9 +127,10 @@ func (tree *Tree) insertB(v int) {
 		tree.root.c = true
 		tree.size++
 	}
-	printT(tree.root)
+
 	if v < tree.root.v {
 		if tree.Insert(&tree.root.l, v, tree.root) {
+			printT(tree.root)
 			tree.size++
 			tree.inserCase(tree.last)
 		}
@@ -142,6 +138,7 @@ func (tree *Tree) insertB(v int) {
 
 	if v > tree.root.v {
 		if tree.Insert(&tree.root.r, v, tree.root) {
+			printT(tree.root)
 			tree.size++
 			tree.inserCase(tree.last)
 		}
@@ -183,11 +180,13 @@ func (tree *Tree) inserCase(n *node) {
 
 	if n.p.c == false {
 		if n.getUn() != nil && n.getUn().c == false {
+			fmt.Println("aaaaa", n)
 			n.p.c = true
 			n.getUn().c = true
 			n.getGp().c = false
-			tree.inserCase(n.getGp())
-		} else { //nil or black
+			tree.inserCase(n.getGp()) //if root node
+		} else {
+			//nil or black
 			if n == n.p.r && n.getGp() != nil && n.p == n.getGp().l {
 				tree.rotateL(n)
 				tree.rotateR(n)
