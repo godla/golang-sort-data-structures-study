@@ -13,7 +13,9 @@ func main() {
 	for _, v := range data {
 		tree.insertB(v)
 	}
-	fmt.Println(tree.size)
+	//fmt.Println(tree.size)
+	tree.tdelete(tree.root, 8)
+	printT(tree.root)
 }
 
 type node struct {
@@ -118,6 +120,85 @@ func getMin() {
 
 func getMax() {
 
+}
+
+func (tree *Tree) tdelete(n *node, v int) {
+	if tree == nil {
+		return
+	}
+	if v < n.v {
+		tree.tdelete(n.l, v)
+	}
+	if v > n.v {
+		tree.tdelete(n.r, v)
+	}
+
+	if n.v == v {
+		if tree.deleteR(n) {
+			tree.size--
+		}
+	}
+}
+
+func (tree *Tree) deleteR(n *node) bool {
+	if n.l == nil && n.r == nil {
+		if n.p != nil {
+			if n.p.l == n {
+				n.p.l = nil
+			} else {
+				n.p.r = nil
+			}
+		}
+		n.p = nil
+		n.v = 0
+		n.l = nil
+		n.r = nil
+		n.c = false
+		return false
+	} else if n.l != nil && n.r == nil {
+		if n.p != nil {
+			if n.p.l == n {
+				n.p.l = n.l
+			} else {
+				n.p.r = n.l
+			}
+		}
+		n.l.p = n.p
+	} else if n.r != nil && n.l == nil {
+		if n.p != nil {
+			if n.p.l == n {
+				n.p.l = n.r
+			} else {
+				n.p.r = n.r
+			}
+		}
+		n.r.p = n.p
+	} else if n.r != nil && n.l != nil {
+		lc := n.l
+		var s *node
+		for lc.r != nil {
+			s = lc.r
+		}
+		if s == nil {
+			lc.r = n.r
+		} else {
+			s.r = n.r
+		}
+		if n.p != nil {
+			if n.p.l == n {
+				n.p.l = n.l
+			} else {
+				n.p.r = n.l
+			}
+		}
+		n.l.p = n.p
+	}
+	n.p = nil
+	n.v = 0
+	n.l = nil
+	n.r = nil
+	n.c = false
+	return true
 }
 
 func (tree *Tree) insertB(v int) {
