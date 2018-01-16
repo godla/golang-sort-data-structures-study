@@ -166,62 +166,103 @@ func (Tree *Tree) findMax(n *node) *node {
 	// }
 }
 func (tree *Tree) deleteR(n *node) bool {
-	if n.l == nil && n.r == nil {
-		if n.p != nil {
-			if n.p.l == n {
-				n.p.l = nil
-			} else {
-				n.p.r = nil
-			}
-		}
-		n.p = nil
-		n.v = 0
-		n.l = nil
-		n.r = nil
-		n.c = false
-		return false
+	if n.l == nil && n.r == nil && n.p == nil {
+		n = nil
+		tree.root = n
+		return true
 	}
 
+	var child *node
 	if n.l != nil {
-		if n.p != nil {
-			if n.p.l == n {
-				n.p.l = n.l
-			} else {
-				n.p.r = n.l
-			}
-		}
-		n.l.p = n.p
-	} else if n.r != nil {
-		if n.p != nil {
-			if n.p.l == n {
-				n.p.l = n.r
-			} else {
-				n.p.r = n.r
-			}
-		}
-		n.r.p = n.p
+		child = n.l
+	} else {
+		child = n.r
 	}
-	//此处第4种情况有上层调用代码转换
-	//  else if n.r != nil && n.l != nil {
 
-	// 	fmt.Println(maxn)
-	// 	maxn.p = nil
-	// 	maxn.v = 0
-	// 	maxn.l = nil
-	// 	maxn.r = nil
-	// 	maxn.c = false
-	// 	return true
-	// }
-	n.p = nil
-	n.v = 0
-	n.l = nil
-	n.r = nil
-	n.c = false
+	if n.p == nil {
+		child.p = nil
+		tree.root = child
+		child.c = true
+		return true
+	}
+
+	if n.p.l == n {
+		n.p.l = child
+	} else {
+		n.p.r = child
+	}
+	child.p = n.p
+
+	//black
+	if n.c == true {
+		if child.c == false {
+			child.c = true
+		} else {
+			//n= black n.child=black
+			//need fix
+			tree.fix(child)
+		}
+	}
+	//if red is ok
 	return true
 }
 
-//修复红黑树平衡
-func fix() {
+//兄弟
+func (n *node) br() *node {
+	if n.p.l == n {
+		return n.r
+	} else {
+		return n.l
+	}
+}
+
+//修复红黑树平衡 n.c = black n.p.c = black
+func (tree *Tree) fix(n *node) {
+	// if n.p == nil {
+	// 	n.c = true
+	// 	tree.root = n
+	// 	return
+	// }
+	red := false
+	black := true
+	//br = red
+	if n.br().c == red {
+		n.p.c = red
+		n.br().c = black
+		if n == n.p.l {
+			tree.rotateL(n.br())
+		} else {
+			tree.rotateR(n.br())
+		}
+	}
+	if n.p.c == black && n.br().c == black && n.br().l.c == black && n.br().r.c == black {
+		n.br().c = red
+		tree.fix(n.p) //????????????
+	} else if n.p.c == red && n.br().c == black && n.br().l.c == black && n.br().r.c == black {
+		n.br().c = red
+		n.p.c = black
+	} else {
+		if n.br().c == black {
+			if n == n.p.l && n.br().l.c == red && n.br().r.c == black {
+				n.br().c = red
+				n.br().l.c = black
+				tree.rotateR(n.br().l)
+			} else if n == n.p.r && n.br().l.c == black && n.br().r.c == red {
+				n.br().c = red
+				n.br().r.c = black
+				tree.rotateL(n.br().r)
+			}
+		}
+		n.br().c = n.p.c
+		n.p.c = black
+		if n == n.p.l {
+			n.br().r.c = black
+			tree.rotateL(n.br())
+		} else {
+			n.br().l.c = black
+			tree.rotateR(n.br())
+		}
+	}
 
 }
 
