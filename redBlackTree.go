@@ -134,12 +134,37 @@ func (tree *Tree) tdelete(n *node, v int) {
 	}
 
 	if n.v == v {
-		if tree.deleteR(n) {
-			tree.size--
+		if n.l != nil && n.r != nil {
+			mn := tree.findMax(n)
+			//转换为 mu.r 必定为 nil 依据为2叉搜寻树特性 小的放左边 大的放右边
+			n.v = mn.v //swap data
+			if tree.deleteR(mn) {
+				tree.size--
+			}
+		} else {
+			if tree.deleteR(n) {
+				tree.size--
+			}
 		}
+
 	}
 }
 
+//n.l != nil && n.r != nil 前置条件
+func (Tree *Tree) findMax(n *node) *node {
+	//选择n节点的左子树中最大节点
+	maxn := n.l
+	for maxn.r != nil {
+		maxn = maxn.r
+	}
+	return maxn
+	// n.v = maxn.v
+	// if maxn == n.l {
+	// 	maxn.p.l = n.l
+	// } else {
+	// 	maxn.p.r = maxn.l
+	// }
+}
 func (tree *Tree) deleteR(n *node) bool {
 	if n.l == nil && n.r == nil {
 		if n.p != nil {
@@ -155,7 +180,9 @@ func (tree *Tree) deleteR(n *node) bool {
 		n.r = nil
 		n.c = false
 		return false
-	} else if n.l != nil && n.r == nil {
+	}
+
+	if n.l != nil {
 		if n.p != nil {
 			if n.p.l == n {
 				n.p.l = n.l
@@ -164,7 +191,7 @@ func (tree *Tree) deleteR(n *node) bool {
 			}
 		}
 		n.l.p = n.p
-	} else if n.r != nil && n.l == nil {
+	} else if n.r != nil {
 		if n.p != nil {
 			if n.p.l == n {
 				n.p.l = n.r
@@ -173,26 +200,18 @@ func (tree *Tree) deleteR(n *node) bool {
 			}
 		}
 		n.r.p = n.p
-	} else if n.r != nil && n.l != nil {
-		//选择n节点的左子树中最大节点
-		maxn := n.l
-		for maxn.r != nil {
-			maxn = maxn.r
-		}
-		n.v = maxn.v
-		if maxn == n.l {
-			maxn.p.l = n.l
-		} else {
-			maxn.p.r = maxn.l
-		}
-		fmt.Println(maxn)
-		maxn.p = nil
-		maxn.v = 0
-		maxn.l = nil
-		maxn.r = nil
-		maxn.c = false
-		return true
 	}
+	//此处第4种情况有上层调用代码转换
+	//  else if n.r != nil && n.l != nil {
+
+	// 	fmt.Println(maxn)
+	// 	maxn.p = nil
+	// 	maxn.v = 0
+	// 	maxn.l = nil
+	// 	maxn.r = nil
+	// 	maxn.c = false
+	// 	return true
+	// }
 	n.p = nil
 	n.v = 0
 	n.l = nil
@@ -266,7 +285,6 @@ func (tree *Tree) inserCase(n *node) {
 
 	if n.p.c == false {
 		if n.getUn() != nil && n.getUn().c == false {
-			fmt.Println("aaaaa", n)
 			n.p.c = true
 			n.getUn().c = true
 			n.getGp().c = false
