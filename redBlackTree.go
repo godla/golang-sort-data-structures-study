@@ -14,7 +14,7 @@ func main() {
 		tree.insertB(v)
 	}
 	//fmt.Println(tree.size)
-	tree.tdelete(tree.root, 8)
+	tree.tdelete(tree.root, 2)
 	printT(tree.root)
 }
 
@@ -174,24 +174,24 @@ func (tree *Tree) deleteR(n *node) bool {
 		}
 		n.r.p = n.p
 	} else if n.r != nil && n.l != nil {
-		lc := n.l
-		var s *node
-		for lc.r != nil {
-			s = lc.r
+		//选择n节点的左子树中最大节点
+		maxn := n.l
+		for maxn.r != nil {
+			maxn = maxn.r
 		}
-		if s == nil {
-			lc.r = n.r
+		n.v = maxn.v
+		if maxn == n.l {
+			maxn.p.l = n.l
 		} else {
-			s.r = n.r
+			maxn.p.r = maxn.l
 		}
-		if n.p != nil {
-			if n.p.l == n {
-				n.p.l = n.l
-			} else {
-				n.p.r = n.l
-			}
-		}
-		n.l.p = n.p
+		fmt.Println(maxn)
+		maxn.p = nil
+		maxn.v = 0
+		maxn.l = nil
+		maxn.r = nil
+		maxn.c = false
+		return true
 	}
 	n.p = nil
 	n.v = 0
@@ -199,6 +199,11 @@ func (tree *Tree) deleteR(n *node) bool {
 	n.r = nil
 	n.c = false
 	return true
+}
+
+//修复红黑树平衡
+func fix() {
+
 }
 
 func (tree *Tree) insertB(v int) {
