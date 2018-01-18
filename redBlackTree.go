@@ -171,6 +171,7 @@ func (tree *Tree) deleteR(n *node) bool {
 	if n.l == nil && n.r == nil && n.p == nil {
 		n = nil
 		tree.root = n
+		n = nil
 		return true
 	}
 
@@ -186,6 +187,7 @@ func (tree *Tree) deleteR(n *node) bool {
 		child.p = nil
 		tree.root = child
 		child.c = true
+		n = nil
 		return true
 	}
 
@@ -195,9 +197,11 @@ func (tree *Tree) deleteR(n *node) bool {
 		n.p.r = child
 	}
 
-	child.p = n.p
+	if child != nil {
+		child.p = n.p
+	}
 
-	if n.c == black {   
+	if n.c == black {
 		if child != nil && child.c == red {
 			//          p
 			//       b 			= n
@@ -206,18 +210,14 @@ func (tree *Tree) deleteR(n *node) bool {
 			//fcase 1
 			child.c = true
 		} else {
- 
-			tree.fix(child)
+			//                 p
+			//        n=b
+			//    nil      nil
+			tree.fix2(n)
 		}
 	}
-
-	// 由于 红色节点采用直接删除 所以可能产生
-	//       b
-	//     b    b
-	//   b    b   b
 	//if red is ok
-
-	//free n
+	n = nil
 	return true
 }
 
@@ -240,49 +240,26 @@ func (n *node) br() *node {
 	}
 }
 
-func cleanN(n *node){
-
-}
-
-func sibling(n *node){
-	if n.p.l == n {
-		return n.r
-	} else {
-		return n.l
-	}
-}
-
 //n = delete node n=black
-//更具红黑树 特性 推论出 如下结构 
-//   n=b         
+//根据红黑树 特性 推论出 如下结构
+//   n=b
 //nil   nil
-//在这种情况下，删除n 将使得 整个tree 不平衡 少了一个黑节点嘛 
+//在这种情况下，删除n 将使得 整个tree 不平衡 少了一个黑节点嘛
 //所以思想是 从隔壁挪一个黑色过来 或者 重新染色
 func (tree *Tree) fix2(n *node) {
 
 	red := false
 	black := true
 
-
-	//余下情况 根据此图考虑  
-	//因为n=black 情况下必然存在兄弟br 
-	//那为什么有brl brr 如果 br 等于red 那brl brr = black
-	//所以下面是总图 并非每种情况图 
-	//          p
-	//     n=b       br
-	// nil  nil brl      brr
-	//        nil nil nil nil
-	//由于之前用br 发现描述有点难受 查了下资料发现都用 sibling br 我们改成s 
 	//          p
 	//    n=b       s
 	// nil  nil  sl      sr
 	//        nil nil nil nil
 	//看上去很眼熟 是不是 没错大部分教程都是这个图
-	
-	//case1
-	if n.p == nil{
-		tree.root = n.l
-		cleanN(n)
+
+	//case1 如果到了根节点 设置为黑色
+	if n.p == nil {
+		n.c = black
 		return
 	}
 
@@ -291,7 +268,7 @@ func (tree *Tree) fix2(n *node) {
 	//     b         r
 	// nil  nil  b       b
 	//        nil nil nil nil
-	if  n.br().c == red && n.c == black && n.p.c == black {
+	if n.br().c == red && n.p.c == black {
 		n.p.c = red
 		n.br().c = black
 		if n == n.p.l {
@@ -299,36 +276,56 @@ func (tree *Tree) fix2(n *node) {
 		} else {
 			tree.rotateR(n.br())
 		}
-	//            b
-	//       r         b
-	//   b=n       b
-	//nil nil nil nil  
-	//这种情况下删除 n 并不能保证平衡 所以要继续执行case
+		//            b=s
+		//        r=p         b=sr
+		//   b=n     b=sl   nil nil
+		//nil nil nil nil
+		//这种情况下删除 n 并不能保证平衡 所以要继续执行case 4 case5 case 6
 	}
 
-	//case 3 全黑
-	//         b
-	//    b            b
-	// nil nil   b=nil    b=nil
-	if n.p.c == black && n.br().c == black && n.br().l==nil && n.br().r == nil{
+	//case3
+	//          b
+	//     b         b
+	// nil  nil  nil   nil
+	if n.p.c == black && n.br().c == black && n.l == nil && n.r == nil {
+		n.br().c = red //减少左边路劲
+		tree.fix2(n.p)
+	}
+
+	//case4
+	//          r
+	//     b         b
+	// nil  nil  nil   nil
+	if n.p.c == red && n.br().c == black && n.br().r == nil && n.br().l == nil {
+		n.p.c = black
 		n.br().c = red
 		return
 	}
 
-	//case3-2
-	//         b
-	//    b              b
-	// nil nil       r       r
-	//           nil  nil  nil nil
-	//fcase 4
-	if n.p.c = red && n.br().c = black && n.br().l == black && n.br().r ==black{
+	//case 5
+	if n.br().c == black {
+		if n.br().l != nil && n.br().r == nil && n == n.p.l {
+			n.br().c = red
+			n.br().l.c = black
+			tree.rotateR(n.br().l)
+		}
+		if n == n.p.r && n.br().l == nil && n.br().r != nil {
+			n.br().c = red
+			n.br().r.c = black
+			tree.rotateL(n.br().r)
+		}
+
+		//do case 6
+		n.br().c = n.p.c
 		n.p.c = black
-		n.br().c = red
+		if n == n.p.l {
+			n.br().r.c = black
+			tree.rotateL(n.br())
+		} else {
+			n.br().l.c = black
+			tree.rotateR(n.br())
+		}
 	}
-
-
-	//fcase 5
-	if 
 }
 
 //修复红黑树平衡 n.c = black n.p.c = black
