@@ -253,10 +253,7 @@ func (tree *Tree) fix2(n *node) {
 
 	//          p
 	//    n=b       s
-	// nil  nil  sl      sr
-	//        nil nil nil nil
-	//看上去很眼熟 是不是 没错大部分教程都是这个图
-
+	// nil  nil  sl    sr
 	//case1 如果到了根节点 设置为黑色
 	if n.p == nil {
 		n.c = black
@@ -265,9 +262,10 @@ func (tree *Tree) fix2(n *node) {
 
 	//case2
 	//          b
-	//     b         r
+	//     n         r
 	// nil  nil  b       b
 	//        nil nil nil nil
+	//我们希望兄弟节点变成黑色
 	if n.br().c == red && n.p.c == black {
 		n.p.c = red
 		n.br().c = black
@@ -287,44 +285,65 @@ func (tree *Tree) fix2(n *node) {
 	//          b
 	//     b         b
 	// nil  nil  nil   nil
+	// 因为是全黑情况 只能将 修复节点上移，上移后 支路需要增加 一个红色节点
 	if n.p.c == black && n.br().c == black && n.l == nil && n.r == nil {
-		n.br().c = red //减少左边路劲
-		tree.fix2(n.p)
+		n.br().c = red //增加红色节点 （将黑色节点涂红）
+		tree.fix2(n.p) //上移修复节点
+		//ok
 	}
 
 	//case4
 	//          r
 	//     b         b
 	// nil  nil  nil   nil
+	// 减少右侧支路黑色节点，增加父节点为黑色
 	if n.p.c == red && n.br().c == black && n.br().r == nil && n.br().l == nil {
 		n.p.c = black
 		n.br().c = red
 		return
 	}
 
-	//case 5
+	//case 5 转换成case6
 	if n.br().c == black {
+		//    p
+		// n     s
+		//     sl=r sr=b
 		if n.br().l != nil && n.br().r == nil && n == n.p.l {
 			n.br().c = red
 			n.br().l.c = black
 			tree.rotateR(n.br().l)
 		}
-		if n == n.p.r && n.br().l == nil && n.br().r != nil {
+		//镜像
+		if n.br().r != nil && n.br().l == nil && n == n.p.r {
 			n.br().c = red
 			n.br().r.c = black
 			tree.rotateL(n.br().r)
 		}
+	}
 
-		//do case 6
-		n.br().c = n.p.c
-		n.p.c = black
-		if n == n.p.l {
-			n.br().r.c = black
-			tree.rotateL(n.br())
-		} else {
-			n.br().l.c = black
-			tree.rotateR(n.br())
-		}
+	//case 6
+	//这种情况 你可以发现 可以忽略 SL颜色
+	//      p
+	//   n     s=b
+	//           sr=r
+	if n.br().c == black && b.br().r != nil && n == n.p.l {
+		n.br().c = n.p.c     //保证颜色不变
+		tree.rotateL(n.br()) //将兄弟节点成为父节点的父节点 ，使得兄弟路劲减少了一个黑色
+		n.p.c = black        //增加 n 路径上 黑色节点
+		n.getGp().r = black  //增加兄弟路径 黑色
+		return
+	}
+
+	//case 6 镜像
+	//      p
+	//   s     n
+	// sl=r
+	if n.br().c == black && b.br().l != nil && n == n.p.r {
+		n.br().c = n.p.c     //保证颜色不变
+		tree.rotateR(n.br()) //将兄弟节点成为父节点的父节点 ，使得兄弟路劲减少了一个黑色
+		n.p.c = black        //增加 n 路径上 黑色节点
+		n.getGp().l = black  //增加兄弟路径 黑色
+		return
 	}
 }
 
