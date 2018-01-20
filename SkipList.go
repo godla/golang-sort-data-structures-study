@@ -50,7 +50,15 @@ func main() {
 	fmt.Println("skip list", data)
 
 	sl := createSkipList()
-	fmt.Println(sl.hnode.forward)
+
+	fmt.Println(sl, sl.hnode.forward)
+	for i := 0; i < 10; i++ {
+		insert(sl, i)
+	}
+
+	fmt.Println(search(sl, 11))
+	fmt.Println(search(sl, 1))
+
 }
 
 func insert(sl *SkipList, kv int) bool {
@@ -60,20 +68,20 @@ func insert(sl *SkipList, kv int) bool {
 	p = sl.hnode
 	k := sl.lv
 
-	for i := k - 1; i >= 0; i-- {
-		q = p.forward[i]
-		for q.key < kv {
-			p = q
+	for i := k - 1; i >= 0; i-- { //loop level
+		for p != nil && p.forward[i] != nil && p.forward[i].key < kv {
+			p = p.forward[i]
 		}
 		update[i] = p
 	}
 
-	//插入数据相同 直接返回false
-	if q != nil && q.key == kv {
+	if p != nil && p.key == kv {
 		return false
 	}
 
 	k = randomLevel()
+
+	//update hnode forword pointer
 	if k > sl.lv {
 		for i := sl.lv; i < k; i++ {
 			update[i] = sl.hnode
@@ -82,9 +90,14 @@ func insert(sl *SkipList, kv int) bool {
 	}
 
 	q = createNode(k, kv)
+
 	for i := 0; i < k; i++ {
-		q.forward[i] = update[i].forward[i]
-		update[i].forward[i] = q
+		if update[i] != nil {
+			q.forward[i] = update[i].forward[i]
+			update[i].forward[i] = q
+		} else {
+
+		}
 	}
 
 	return true
@@ -95,16 +108,14 @@ func delete() {
 }
 
 func search(sl *SkipList, kv int) int {
-	var p, q *node
-	p = sl.hnode
-	k := sl.lv
-	for i := k - 1; i >= 0; i-- {
-		q = p.forward[i]
-		for q.key <= kv {
-			if q.key == kv {
-				return q.key
+	var q *node
+	q = sl.hnode
+	for i := sl.lv - 1; i >= 0; i-- {
+		for q != nil && q.forward[i] != nil && q.forward[i].key <= kv {
+			if q.forward[i].key == kv {
+				return q.forward[i].key
 			}
-			p = q
+			q = q.forward[i]
 		}
 	}
 	return -1
