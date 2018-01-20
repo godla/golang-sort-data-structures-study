@@ -58,7 +58,8 @@ func main() {
 
 	fmt.Println(search(sl, 11))
 	fmt.Println(search(sl, 1))
-
+	fmt.Println(delete(sl, 1))
+	fmt.Println(search(sl, 1))
 }
 
 func insert(sl *SkipList, kv int) bool {
@@ -103,8 +104,32 @@ func insert(sl *SkipList, kv int) bool {
 	return true
 }
 
-func delete() {
+func delete(sl *SkipList, kv int) bool {
+	update := make([]*node, MAX_LEVEL, MAX_LEVEL)
+	p := sl.hnode
 
+	for i := sl.lv - 1; i >= 0; i-- {
+		for p != nil && p.forward[i] != nil && p.forward[i].key < kv {
+			p = p.forward[i]
+		}
+		update[i] = p
+	}
+
+	if p.forward != nil && p.forward[0].key != kv {
+
+		return false
+	}
+
+	deleteN := p.forward[0]
+	for i := sl.lv - 1; i >= 0; i-- {
+		if update[i] != nil && update[i].forward[i] == deleteN {
+			update[i].forward[i] = deleteN.forward[i]
+			if sl.hnode.forward[i] == nil {
+				sl.lv--
+			}
+		}
+	}
+	return true
 }
 
 func search(sl *SkipList, kv int) int {
