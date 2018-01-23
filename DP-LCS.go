@@ -32,7 +32,7 @@ func LCS(str1 string, str2 string, l1 int, l2 int) [10][10]int {
 	var d2 [10][10]int //make([][]int, 10, 10)
 
 	// i= 0 j=0 len = 0 return 0
-	if i == 0 || j == 0 {
+	if l1 == 0 || l2 == 0 {
 		return d2
 	}
 
