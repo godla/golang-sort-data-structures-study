@@ -19,7 +19,6 @@ func main() {
 	printLCS(d2, str1, l1, l2)
 	fmt.Println("\nend")
 	// 设序列X=< x1, x2, …, xm >和Y=< y1, y2, …, yn >的一个最长公共子序列Z=< z1, z2, …, zk >，则：+
-
 	// 若xm=yn，则zk=xm=yn且Zk-1是Xm-1和Yn-1的最长公共子序列；
 	// 若xm≠yn且zk≠xm ，则Z是Xm-1和Y的最长公共子序列；
 	// 若xm≠yn且zk≠yn ，则Z是X和Yn-1的最长公共子序列。
