@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
 )
 
@@ -23,6 +24,11 @@ func main() {
 	}
 	initGG(&gg)
 	fmt.Println(gg.vexs)
+	fBFS(&gg)
+	fDFS(&gg)
+
+	//listgg := list.New()
+
 	PrintG(gg, len(vexs))
 }
 
@@ -56,6 +62,50 @@ func initGG(gg *Graph) {
 
 	gg.matrix[4][1] = 4
 	gg.matrix[4][3] = 1
+
+	gg.edgnum = 12 / 2
+}
+
+//深度遍历
+func DFS(gg *Graph, visit *[]bool, i int) {
+
+	fmt.Println(gg.vexs[i])
+	for j := 0; j < gg.vexnum; j++ {
+		if gg.matrix[i][j] != MAX_VALUE && !(*visit)[j] {
+			(*visit)[j] = true
+			DFS(gg, visit, j)
+		}
+	}
+}
+
+func fDFS(gg *Graph) {
+	visit := make([]bool, 10, 10)
+	fmt.Println(visit)
+	visit[0] = true
+	DFS(gg, &visit, 0)
+}
+
+//广度遍历
+func fBFS(gg *Graph) {
+	listq := list.New()
+	visit := make([]bool, 10, 10)
+
+	//first push
+	visit[0] = true
+	listq.PushBack(0)
+
+	for listq.Len() > 0 {
+		index := listq.Front()
+
+		fmt.Println(gg.vexs[index.Value.(int)])
+		for i := 0; i < gg.vexnum; i++ {
+			if !visit[i] && gg.matrix[index.Value.(int)][i] != MAX_VALUE {
+				visit[i] = true
+				listq.PushBack(i)
+			}
+		}
+		listq.Remove(index)
+	}
 }
 
 func prim() {
