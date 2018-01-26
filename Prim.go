@@ -13,7 +13,7 @@ const MAX_VALUE int = 9
 func main() {
 	fmt.Println("Prim")
 	var gg Graph
-	var vexs = []string{"A", "B", "C", "D", "E"}
+	var vexs = []string{"B", "A", "C", "D", "E"}
 	gg.vexnum = 5
 	gg.vexs = vexs
 
@@ -28,7 +28,7 @@ func main() {
 	fDFS(&gg)
 
 	//listgg := list.New()
-
+	prim(&gg, 0)
 	PrintG(gg, len(vexs))
 }
 
@@ -96,7 +96,6 @@ func fBFS(gg *Graph) {
 
 	for listq.Len() > 0 {
 		index := listq.Front()
-
 		fmt.Println(gg.vexs[index.Value.(int)])
 		for i := 0; i < gg.vexnum; i++ {
 			if !visit[i] && gg.matrix[index.Value.(int)][i] != MAX_VALUE {
@@ -108,6 +107,65 @@ func fBFS(gg *Graph) {
 	}
 }
 
-func prim() {
+func prim(gg *Graph, start int) {
+	index := 0
+	sum := 0
+	prims := make([]string, 10, 10)
+	var weights [5][2]int //[[0 0] [0 5] [0 3] [0 9] [0 9]]
 
+	prims[index] = gg.vexs[start]
+	index++
+
+	//next vex
+	for i := 0; i < gg.vexnum; i++ {
+		weights[i][0] = start               //k
+		weights[i][1] = gg.matrix[start][i] //v
+	}
+
+	//delete vex
+	weights[start][1] = 0
+
+	for i := 0; i < gg.vexnum; i++ {
+		//fmt.Println(weights)
+		if start == i {
+			continue
+		}
+
+		min := MAX_VALUE
+		next := 0
+		for j := 0; j < gg.vexnum; j++ {
+			if weights[j][1] != 0 && weights[j][1] < min {
+				min = weights[j][1]
+				next = j
+			}
+		}
+
+		fmt.Println(gg.vexs[weights[next][0]], gg.vexs[next], "权重", weights[next][1])
+		sum += weights[next][1]
+		prims[index] = gg.vexs[next]
+		index++
+
+		//delete vex
+		weights[next][1] = 0
+
+		//update
+		for j := 0; j < gg.vexnum; j++ {
+			if weights[j][1] != 0 && gg.matrix[next][j] < weights[j][1] {
+				weights[j][1] = gg.matrix[next][j]
+				weights[j][0] = next
+			}
+		}
+	}
+
+	fmt.Println("sum:", sum)
+	fmt.Println(prims)
+}
+
+func get_position(gg *Graph, ch string) int {
+	for i := 0; i < gg.vexnum; i++ {
+		if gg.vexs[i] == ch {
+			return i
+		}
+	}
+	return -1
 }
