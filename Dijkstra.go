@@ -7,3 +7,7 @@ import (
 func main() {
 	fmt.Println("Dijkstra")
 }
+
+func Dijkstra() {
+
+}
