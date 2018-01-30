@@ -34,41 +34,36 @@ type Edge struct {
 func Dijkstra(gg *Graph, start int) {
 
 	var dist [MAX_SIZE]int //路劲长度数组
-	var flag [MAX_SIZE]bool
-	var prev [MAX_SIZE]int
+	var ss [MAX_SIZE]bool  //最短路劲节点集合
 
 	//init
 	dist = gg.matrix[start]
-	flag[start] = true //find start to start
-	dist[start] = 0    //start to start length
-	fmt.Println("dist : ", dist)
+	ss[start] = true //find start to start
+	dist[start] = 0  //start to start length
 
-	//广度搜索
 	for i := 0; i < gg.vexnum; i++ {
 		k := 0
 		min := MAX_VALUE
-		//find min
+		fmt.Println("-----------")
+		fmt.Println(dist, ss)
+		//find next 贪心
 		for j := 0; j < len(dist); j++ {
-			if flag[j] == false && dist[j] != MAX_VALUE && dist[j] < min {
+			if ss[j] == false && dist[j] != MAX_VALUE && dist[j] < min {
 				min = dist[j]
 				k = j
 			}
 		}
 
 		//set find
-		flag[k] = true
+		ss[k] = true
 
 		//update dist length
-		for u := 0; u < len(dist); u++ {
-			weigth := 0
-			if gg.matrix[k][u] == MAX_VALUE {
-				weigth = MAX_VALUE
-			} else {
-				weigth = min + gg.matrix[k][u]
-			}
-			if flag[u] == false && weigth < dist[u] {
-				dist[u] = weigth
-				prev[u] = k
+		for u := 0; u < gg.vexnum; u++ {
+			if gg.matrix[k][u] != MAX_VALUE && ss[u] == false {
+				weight := min + gg.matrix[k][u]
+				if weight < dist[u] {
+					dist[u] = weight
+				}
 			}
 		}
 
