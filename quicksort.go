@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
+//为了看上去 好一些
+const MAX_VALUE int = 9
+
 func main() {
 	var arr = []int{6, 5, 5, 3, 1, 8, 7, 2, 4, 9}
 	start := 0
