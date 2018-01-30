@@ -5,16 +5,17 @@ import (
 )
 
 const MAX_SIZE int = 5
-const MAX_VALUE int = 0
+const MAX_VALUE int = 9999
 
 func main() {
 	fmt.Println("Dijkstra")
 	var gg Graph
-	var vexs = []string{"B", "A", "C", "D", "E"}
+	var vexs = []string{"A", "B", "C", "D", "E"}
 	gg.vexnum = 5
 	gg.vexs = vexs
 	initGG(&gg, vexs)
 	PrintG(gg, 5)
+	Dijkstra(&gg, 1)
 }
 
 type Graph struct {
@@ -30,8 +31,51 @@ type Edge struct {
 	weight int
 }
 
-func Dijkstra() {
+func Dijkstra(gg *Graph, start int) {
 
+	var dist [MAX_SIZE]int //路劲长度数组
+	var flag [MAX_SIZE]bool
+	var prev [MAX_SIZE]int
+
+	//init
+	dist = gg.matrix[start]
+	flag[start] = true //find start to start
+	dist[start] = 0    //start to start length
+
+	k := 0
+	//广度搜索
+	for i := 0; i < gg.vexnum; i++ {
+		min := MAX_VALUE
+		//find min
+		for j := 0; j < gg.vexnum; j++ {
+			if flag[j] == true && dist[j] < min {
+				min = dist[j]
+				k = j
+			}
+		}
+
+		//set find
+		flag[k] = true
+
+		//update dist length
+		for u := 0; u < gg.vexnum; u++ {
+			weigth := 0
+			if gg.matrix[k][u] == MAX_VALUE {
+				weigth = MAX_VALUE
+			} else {
+				weigth = gg.matrix[k][u]
+			}
+			if flag[u] == true && weigth < dist[u] {
+				dist[u] = weigth
+				prev[u] = k
+			}
+		}
+
+	}
+
+	for i := 0; i < gg.vexnum; i++ {
+		fmt.Printf("shortest %s->%s = %d\n", gg.vexs[start], gg.vexs[i], dist[i])
+	}
 }
 
 func initGG(gg *Graph, vexs []string) {
