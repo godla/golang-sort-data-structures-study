@@ -41,14 +41,15 @@ func Dijkstra(gg *Graph, start int) {
 	dist = gg.matrix[start]
 	flag[start] = true //find start to start
 	dist[start] = 0    //start to start length
+	fmt.Println("dist : ", dist)
 
-	k := 0
 	//广度搜索
 	for i := 0; i < gg.vexnum; i++ {
+		k := 0
 		min := MAX_VALUE
 		//find min
-		for j := 0; j < gg.vexnum; j++ {
-			if flag[j] == true && dist[j] < min {
+		for j := 0; j < len(dist); j++ {
+			if flag[j] == false && dist[j] != MAX_VALUE && dist[j] < min {
 				min = dist[j]
 				k = j
 			}
@@ -58,14 +59,14 @@ func Dijkstra(gg *Graph, start int) {
 		flag[k] = true
 
 		//update dist length
-		for u := 0; u < gg.vexnum; u++ {
+		for u := 0; u < len(dist); u++ {
 			weigth := 0
 			if gg.matrix[k][u] == MAX_VALUE {
 				weigth = MAX_VALUE
 			} else {
-				weigth = gg.matrix[k][u]
+				weigth = min + gg.matrix[k][u]
 			}
-			if flag[u] == true && weigth < dist[u] {
+			if flag[u] == false && weigth < dist[u] {
 				dist[u] = weigth
 				prev[u] = k
 			}
@@ -88,7 +89,7 @@ func initGG(gg *Graph, vexs []string) {
 	gg.matrix[0][2] = 3
 
 	gg.matrix[1][0] = 5
-	gg.matrix[1][3] = 7
+	gg.matrix[1][3] = 99
 	gg.matrix[1][4] = 4
 
 	gg.matrix[2][0] = 3
