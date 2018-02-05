@@ -42,16 +42,27 @@ func initEdge() {
 }
 
 func Bellman() {
+	//nodeNum -1 自身节点需要去除
 	for i := 0; i < nodeNum-1; i++ {
+		//查找已知权重节点 相连接节点 并且更新权重
 		for j := 0; j < edgeNum; j++ {
-			//开始节点 权值 >
 			if dist[edge[j].v] > dist[edge[j].u]+edge[j].weight {
 				dist[edge[j].v] = dist[edge[j].u] + edge[j].weight
 			}
-			fmt.Println(dist)
+
 		}
 	}
+	fmt.Println(dist)
 
+	//不存在负环路时，都有 v.d < = u.d + w ( u , v )
+	for i := 0; i < edgeNum; i++ {
+		if dist[edge[i].v] > dist[edge[i].u]+edge[i].weight {
+			//存在负环路时，一定存在某条边使得 v.d >u.d + w ( u , v )
+			fmt.Println("Find 负环路")
+			return
+		}
+	}
+	//另一种方案 从start出发。不断维护每个点的最短距离，如果有负权环，则会进行无数次的维护，越来越小，所以如果循环次数大于了V - 1则有负权环。
 }
 
 func main() {
